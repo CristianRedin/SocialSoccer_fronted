@@ -1,0 +1,408 @@
+<div class="home-container">
+  
+  <header class="welcome-header">
+    <div class="header-background">
+      <div class="gradient-overlay"></div>
+      <div class="pattern"></div>
+    </div>
+    
+    <div class="header-content">
+      <div class="user-info-card">
+        <div class="user-avatar">
+          <div class="avatar-initials">CR</div>
+          <div class="online-status"></div>
+        </div>
+        
+        <div class="user-details">
+          <h1 class="welcome-message">¡Bienvenido de vuelta, <span class="highlight">{{userInfo.name}}</span>!</h1>
+          <div class="user-role-info">
+            <span class="user-role">
+              <i class="role-icon">👑</i> {{userInfo.role}}
+            </span>
+            <span class="user-team">
+              <i class="team-icon">⚽</i> {{userInfo.team}} #{{userInfo.number}}
+            </span>
+          </div>
+        </div>
+        
+        <div class="user-stats">
+          <div class="stat-item">
+            <div class="stat-value">12</div>
+            <div class="stat-label">Partidos</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">8</div>
+            <div class="stat-label">Victorias</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">85%</div>
+            <div class="stat-label">Rendimiento</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SECCIÓN 1: ACTIVIDAD RECIENTE (REEMPLAZA ACCESO RÁPIDO) -->
+  <section class="recent-activity-section">
+    <div class="section-header">
+      <h2><i class="section-icon">🔄</i> Actividad Reciente</h2>
+      <p class="section-subtitle">Últimas acciones en la plataforma</p>
+    </div>
+    
+    <div class="activity-timeline">
+      <div class="activity-item">
+        <div class="activity-icon success">✓</div>
+        <div class="activity-content">
+          <h3>Resultado registrado</h3>
+          <p>Fénix FC 3 - 2 Dragones FC</p>
+          <span class="activity-time">Hace 2 horas</span>
+        </div>
+      </div>
+      
+      <div class="activity-item">
+        <div class="activity-icon warning">⚠️</div>
+        <div class="activity-content">
+          <h3>Inscripción pendiente</h3>
+          <p>Copa de Verano 2024 - Pago requerido</p>
+          <span class="activity-time">Ayer, 15:30</span>
+        </div>
+      </div>
+      
+      <div class="activity-item">
+        <div class="activity-icon info">📊</div>
+        <div class="activity-content">
+          <h3>Estadísticas actualizadas</h3>
+          <p>+2 goles, +1 asistencia esta semana</p>
+          <span class="activity-time">Ayer, 10:15</span>
+        </div>
+      </div>
+      
+      <div class="activity-item">
+        <div class="activity-icon tournament">🏆</div>
+        <div class="activity-content">
+          <h3>Nuevo torneo disponible</h3>
+          <p>Copa de Campeones 2024 - Inscripciones abiertas</p>
+          <span class="activity-time">Hace 3 días</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: MIS EQUIPOS Y TORNEOS (REEMPLAZA FUNCIONALIDADES PRINCIPALES) -->
+  <section class="teams-tournaments-section">
+    <div class="section-header">
+      <h2><i class="section-icon">👥</i> Mis Equipos y Torneos</h2>
+      <p class="section-subtitle">Equipos que gestionas y torneos activos</p>
+    </div>
+    
+    <div class="teams-tournaments-grid">
+      <!-- Equipos del usuario -->
+      <div class="teams-card">
+        <div class="card-header">
+          <h3><i class="card-icon">⚽</i> Mis Equipos</h3>
+          <a [routerLink]="['/teams']" class="btn-view-all">Ver todos</a>
+        </div>
+        
+        <div class="teams-list">
+          <div class="team-item">
+            <div class="team-logo-small">F</div>
+            <div class="team-info">
+              <h4>Fénix FC</h4>
+              <p class="team-details">Primera División • 15 jugadores</p>
+              <div class="team-stats">
+                <span class="stat">12P</span>
+                <span class="stat">8W</span>
+                <span class="stat">85%</span>
+              </div>
+            </div>
+            <div class="team-status active">Activo</div>
+          </div>
+          
+          <div class="team-item">
+            <div class="team-logo-small">L</div>
+            <div class="team-info">
+              <h4>Leyendas FC</h4>
+              <p class="team-details">Veteranos • 12 jugadores</p>
+              <div class="team-stats">
+                <span class="stat">8P</span>
+                <span class="stat">6W</span>
+                <span class="stat">75%</span>
+              </div>
+            </div>
+            <div class="team-status active">Activo</div>
+          </div>
+        </div>
+        
+        <div class="card-footer">
+          <a href="#" class="btn-add-team">
+            <i class="add-icon">➕</i> Agregar equipo
+          </a>
+        </div>
+      </div>
+      
+      <!-- Torneos activos -->
+      <div class="tournaments-card">
+        <div class="card-header">
+          <h3><i class="card-icon">🏆</i> Torneos Activos</h3>
+          <a [routerLink]="['/tournaments']" class="btn-view-all">Ver todos</a>
+        </div>
+        
+        <div class="tournaments-list">
+          <div class="tournament-item">
+            <div class="tournament-icon">🥇</div>
+            <div class="tournament-info">
+              <h4>Copa de Campeones 2024</h4>
+              <p class="tournament-details">Eliminación directa • 16 equipos</p>
+              <div class="tournament-progress">
+                <div class="progress-info">
+                  <span>Fase: Cuartos de Final</span>
+                  <span class="progress-percent">75%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 75%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="tournament-item">
+            <div class="tournament-icon">📅</div>
+            <div class="tournament-info">
+              <h4>Liga Premier 2024</h4>
+              <p class="tournament-details">Todos contra todos • 8 equipos</p>
+              <div class="tournament-progress">
+                <div class="progress-info">
+                  <span>Fecha 5 de 14</span>
+                  <span class="progress-percent">35%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 35%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card-footer">
+          <a [routerLink]="['/inscriptions']" class="btn-join-tournament">
+            <i class="join-icon">📝</i> Unirse a torneo
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: PRÓXIMOS PARTIDOS (MEJORADA) -->
+  <section class="upcoming-matches-section">
+    <div class="section-header">
+      <h2><i class="section-icon">📅</i> Próximos Partidos</h2>
+      <p class="section-subtitle">Calendario de partidos programados</p>
+    </div>
+    
+    <div class="matches-calendar">
+      <div class="calendar-header">
+        <div class="calendar-nav">
+          <button class="nav-btn prev"><</button>
+          <h3>Marzo 2024</h3>
+          <button class="nav-btn next">></button>
+        </div>
+        <div class="view-options">
+          <button class="view-btn active">Semana</button>
+          <button class="view-btn">Mes</button>
+          <button class="view-btn">Lista</button>
+        </div>
+      </div>
+      
+      <div class="matches-week">
+        <div class="match-day">
+          <div class="day-header">
+            <div class="day-name">Hoy</div>
+            <div class="day-date">15 Mar</div>
+          </div>
+          <div class="day-matches">
+            <div class="match-item highlight">
+              <div class="match-time">19:00</div>
+              <div class="match-teams">
+                <span class="team">Fénix FC</span>
+                <span class="vs">vs</span>
+                <span class="team">Dragones FC</span>
+              </div>
+              <div class="match-location">Cancha Central</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="match-day">
+          <div class="day-header">
+            <div class="day-name">Mañana</div>
+            <div class="day-date">16 Mar</div>
+          </div>
+          <div class="day-matches">
+            <div class="match-item">
+              <div class="match-time">16:30</div>
+              <div class="match-teams">
+                <span class="team">Leyendas FC</span>
+                <span class="vs">vs</span>
+                <span class="team">Veteranos SC</span>
+              </div>
+              <div class="match-location">Estadio Viejo</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="match-day">
+          <div class="day-header">
+            <div class="day-name">Sáb</div>
+            <div class="day-date">17 Mar</div>
+          </div>
+          <div class="day-matches">
+            <div class="match-item">
+              <div class="match-time">11:00</div>
+              <div class="match-teams">
+                <span class="team">Fénix FC Sub-23</span>
+                <span class="vs">vs</span>
+                <span class="team">Juveniles AC</span>
+              </div>
+              <div class="match-location">Cancha 3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="calendar-footer">
+        <a href="#" class="btn-full-calendar">
+          <i class="calendar-icon">📅</i> Ver calendario completo
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 4: ESTADÍSTICAS DESTACADAS -->
+  <section class="featured-stats-section">
+    <div class="section-header">
+      <h2><i class="section-icon">📊</i> Estadísticas Destacadas</h2>
+      <p class="section-subtitle">Tus números más importantes esta temporada</p>
+    </div>
+    
+    <div class="featured-stats-grid">
+      <div class="featured-stat-card">
+        <div class="stat-header">
+          <div class="stat-icon">⚽</div>
+          <div class="stat-trend positive">+12%</div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">8</div>
+          <div class="stat-label">Goles Anotados</div>
+          <div class="stat-detail">Mejor racha: 3 partidos seguidos</div>
+        </div>
+      </div>
+      
+      <div class="featured-stat-card">
+        <div class="stat-header">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-trend positive">+25%</div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">15</div>
+          <div class="stat-label">Asistencias</div>
+          <div class="stat-detail">Líder del equipo en pases clave</div>
+        </div>
+      </div>
+      
+      <div class="featured-stat-card">
+        <div class="stat-header">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-trend positive">+8%</div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">7.8</div>
+          <div class="stat-label">Rating Promedio</div>
+          <div class="stat-detail">3° mejor del torneo</div>
+        </div>
+      </div>
+      
+      <div class="featured-stat-card">
+        <div class="stat-header">
+          <div class="stat-icon">⏱️</div>
+          <div class="stat-trend neutral">0%</div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">1080'</div>
+          <div class="stat-label">Minutos Jugados</div>
+          <div class="stat-detail">Titular en 12 de 12 partidos</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 5: NOTICIAS Y ANUNCIOS -->
+  <section class="news-section">
+    <div class="section-header">
+      <h2><i class="section-icon">📰</i> Noticias y Anuncios</h2>
+      <p class="section-subtitle">Mantente informado sobre tu fútbol</p>
+    </div>
+    
+    <div class="news-grid">
+      <div class="news-card important">
+        <div class="news-badge">Importante</div>
+        <div class="news-content">
+          <h3>Cambio de formato en Copa de Campeones</h3>
+          <p>La fase de grupos ahora será de 4 equipos en lugar de 3. Revisa el nuevo calendario.</p>
+          <div class="news-meta">
+            <span class="news-date">Hoy, 10:30</span>
+            <a href="#" class="news-link">Leer más →</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="news-card update">
+        <div class="news-badge">Actualización</div>
+        <div class="news-content">
+          <h3>Nueva función: Análisis táctico</h3>
+          <p>Ahora puedes subir videos de partidos para análisis táctico automatizado.</p>
+          <div class="news-meta">
+            <span class="news-date">Ayer, 16:45</span>
+            <a href="#" class="news-link">Probar ahora →</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="news-card event">
+        <div class="news-badge">Evento</div>
+        <div class="news-content">
+          <h3>Clínica de entrenamiento gratuita</h3>
+          <p>Este sábado, 9 AM en el Estadio Nacional. Inscríbete antes del viernes.</p>
+          <div class="news-meta">
+            <span class="news-date">15 Mar, 14:20</span>
+            <a href="#" class="news-link">Inscribirse →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer del home -->
+  <footer class="home-footer">
+    <div class="footer-content">
+      <div class="footer-logo">
+        <div class="logo-icon">⚽</div>
+        <div class="logo-text">
+          <h3>Social Soccer</h3>
+          <p>Gestiona tu fútbol como un profesional</p>
+        </div>
+      </div>
+      
+      <div class="footer-links">
+        <a href="#" class="footer-link">Soporte</a>
+        <a href="#" class="footer-link">FAQ</a>
+        <a href="#" class="footer-link">Términos</a>
+        <a href="#" class="footer-link">Privacidad</a>
+      </div>
+      
+      <div class="footer-copyright">
+        © 2024 Social Soccer v1.0.0 - Desarrollado con ❤️
+      </div>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,291 @@
+<p>inscriptions works!</p>
+<div class="inscriptions-container">
+  <header class="page-header">
+    <h1>Inscripciones a Torneos</h1>
+    <p>Gestiona las inscripciones de tus equipos a diferentes torneos</p>
+  </header>
+
+  <!-- Navegación por pestañas -->
+  <div class="tabs">
+    <button 
+      [class.active]="activeTab === 'inscription'"
+      (click)="setActiveTab('inscription')">
+      <i class="tab-icon">📝</i> Nueva Inscripción
+    </button>
+    <button 
+      [class.active]="activeTab === 'status'"
+      (click)="setActiveTab('status')">
+      <i class="tab-icon">📊</i> Estado de Inscripciones
+      <span class="badge">{{currentInscriptions.length}}</span>
+    </button>
+    <button 
+      [class.active]="activeTab === 'history'"
+      (click)="setActiveTab('history')">
+      <i class="tab-icon">🏆</i> Historial de Torneos
+      <span class="badge">{{inscriptionHistory.length}}</span>
+    </button>
+  </div>
+
+  <!-- Contenido de las pestañas -->
+  <div class="tab-content">
+    
+    <!-- Pestaña: Nueva Inscripción -->
+    <div *ngIf="activeTab === 'inscription'" class="inscription-form-section">
+      <div class="form-container">
+        <h2><i class="form-icon">📋</i> Inscribir Equipo a Torneo</h2>
+        
+        <form (ngSubmit)="submitInscription()" #inscriptionForm="ngForm">
+          
+          <!-- Selección de Equipo -->
+          <div class="form-group">
+            <label for="teamSelect">
+              <i class="field-icon">👥</i> Seleccionar Equipo *
+            </label>
+            <select 
+              id="teamSelect"
+              [(ngModel)]="selectedTeam" 
+              name="teamSelect"
+              (change)="onTeamSelect()"
+              required
+              class="form-select">
+              <option value="" disabled selected>Selecciona tu equipo</option>
+              <option *ngFor="let team of userTeams" [value]="team.id">
+                {{team.name}} ({{team.category}}) - {{team.players}} jugadores
+              </option>
+            </select>
+            <small>Elige el equipo que deseas inscribir</small>
+          </div>
+
+          <!-- Nombre del equipo (solo lectura) -->
+          <div class="form-group" *ngIf="selectedTeam">
+            <label>
+              <i class="field-icon">🏷️</i> Nombre del Equipo
+            </label>
+            <input 
+              type="text" 
+              [(ngModel)]="teamName" 
+              name="teamName"
+              readonly
+              class="form-input readonly">
+          </div>
+
+          <!-- Selección de Torneo -->
+          <div class="form-group">
+            <label for="tournamentSelect">
+              <i class="field-icon">🏆</i> Seleccionar Torneo *
+            </label>
+            <select 
+              id="tournamentSelect"
+              [(ngModel)]="selectedTournament" 
+              name="tournamentSelect"
+              (change)="onTournamentSelect()"
+              required
+              class="form-select">
+              <option value="" disabled selected>Selecciona un torneo</option>
+              <option *ngFor="let tournament of tournaments" [value]="tournament.id">
+                {{tournament.name}} - {{tournament.category}} - ${{tournament.fee}}
+              </option>
+            </select>
+            <small>Torneos disponibles para inscripción</small>
+          </div>
+
+          <!-- Detalles del Torneo Seleccionado -->
+          <div *ngIf="selectedTournamentDetails" class="tournament-details">
+            <h3>📋 Detalles del Torneo</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Categoría:</span>
+                <span class="detail-value">{{selectedTournamentDetails.category}}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Fecha Inicio:</span>
+                <span class="detail-value">{{selectedTournamentDetails.startDate}}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Fecha Fin:</span>
+                <span class="detail-value">{{selectedTournamentDetails.endDate}}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Costo de Inscripción:</span>
+                <span class="detail-value fee">${{selectedTournamentDetails.fee}}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Equipos Máximos:</span>
+                <span class="detail-value">{{selectedTournamentDetails.maxTeams}} equipos</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Capitán del Equipo -->
+          <div class="form-group">
+            <label>
+              <i class="field-icon">👑</i> Capitán del Equipo
+            </label>
+            <input 
+              type="text" 
+              [(ngModel)]="captainName" 
+              name="captainName"
+              readonly
+              class="form-input readonly">
+            <small>Representante principal del equipo</small>
+          </div>
+
+          <!-- Aceptación de Reglas -->
+          <div class="form-group rules-section">
+            <div class="checkbox-container">
+              <input 
+                type="checkbox" 
+                id="acceptRules"
+                [(ngModel)]="acceptRules"
+                name="acceptRules"
+                required>
+              <label for="acceptRules">
+                <i class="field-icon">✓</i> Acepto las reglas del torneo
+              </label>
+            </div>
+            <small class="rules-text">
+              Al marcar esta casilla, confirmo que he leído y acepto todas las reglas y regulaciones del torneo, 
+              incluyendo las políticas de pago, códigos de conducta y requisitos de participación.
+            </small>
+          </div>
+
+          <!-- Botón de Envío -->
+          <div class="form-actions">
+            <button 
+              type="submit" 
+              [disabled]="isLoading || !acceptRules"
+              class="submit-btn"
+              [class.loading]="isLoading">
+              <span *ngIf="!isLoading">
+                <i class="btn-icon">🚀</i> Enviar Inscripción
+              </span>
+              <span *ngIf="isLoading">
+                <i class="spinner">⏳</i> Procesando...
+              </span>
+            </button>
+            <small class="form-note">* Campos obligatorios</small>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Pestaña: Estado de Inscripciones -->
+    <div *ngIf="activeTab === 'status'" class="status-section">
+      <h2><i class="section-icon">📊</i> Estado de Inscripciones Activas</h2>
+      
+      <!-- Resumen de Estados -->
+    <div class="status-summary">
+       <div class="summary-card" *ngFor="let status of statusTypes">
+       <div class="summary-count">{{getInscriptionsByStatus(status).length}}</div>
+       <div class="summary-label">{{getStatusText(status)}}</div>
+        </div>
+    </div>
+
+      <!-- Lista de Inscripciones -->
+      <div class="inscriptions-list">
+        <div *ngIf="currentInscriptions.length === 0" class="empty-state">
+          <i class="empty-icon">📭</i>
+          <h3>No hay inscripciones activas</h3>
+          <p>Inscribe tu primer equipo a un torneo</p>
+        </div>
+
+        <div *ngFor="let inscription of currentInscriptions" class="inscription-card">
+          <div class="card-header">
+            <h3>{{inscription.tournament}}</h3>
+            <span class="status-badge" [class]="getStatusClass(inscription.status)">
+              {{getStatusText(inscription.status)}}
+            </span>
+          </div>
+          
+          <div class="card-body">
+            <div class="info-row">
+              <div class="info-item">
+                <span class="info-label">Equipo:</span>
+                <span class="info-value">{{inscription.team}}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Fecha:</span>
+                <span class="info-value">{{inscription.date}}</span>
+              </div>
+            </div>
+            
+            <div class="info-row">
+              <div class="info-item">
+                <span class="info-label">Capitán:</span>
+                <span class="info-value">{{inscription.captain}}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Pago:</span>
+                <span class="info-value payment-status" [class]="inscription.paymentStatus">
+                  {{inscription.paymentStatus === 'pagado' ? 'Pagado' : 'Pendiente'}}
+                  <span *ngIf="inscription.paymentDate"> - {{inscription.paymentDate}}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-actions" *ngIf="inscription.status === 'pago_pendiente'">
+            <button class="action-btn pay-btn" (click)="processPayment(inscription.id)">
+              <i class="action-icon">💳</i> Realizar Pago
+            </button>
+            <button class="action-btn details-btn">
+              <i class="action-icon">🔍</i> Ver Detalles
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pestaña: Historial de Torneos -->
+    <div *ngIf="activeTab === 'history'" class="history-section">
+      <h2><i class="section-icon">🏆</i> Historial de Torneos Jugados</h2>
+      
+      <div class="history-list">
+        <div *ngIf="inscriptionHistory.length === 0" class="empty-state">
+          <i class="empty-icon">📜</i>
+          <h3>No hay historial de torneos</h3>
+          <p>Los torneos en los que participes aparecerán aquí</p>
+        </div>
+
+        <div *ngFor="let history of inscriptionHistory" class="history-card">
+          <div class="trophy-icon">🏆</div>
+          
+          <div class="history-content">
+            <div class="history-header">
+              <h3>{{history.tournament}}</h3>
+              <span class="history-status completed">Finalizado</span>
+            </div>
+            
+            <div class="history-details">
+              <div class="detail">
+                <span class="detail-label">Equipo:</span>
+                <span class="detail-value">{{history.team}}</span>
+              </div>
+              <div class="detail">
+                <span class="detail-label">Fecha:</span>
+                <span class="detail-value">{{history.date}}</span>
+              </div>
+              <div class="detail">
+                <span class="detail-label">Capitán:</span>
+                <span class="detail-value">{{history.captain}}</span>
+              </div>
+              <div class="detail">
+                <span class="detail-label">Estado:</span>
+                <span class="detail-value">{{getStatusText(history.status)}}</span>
+              </div>
+            </div>
+            
+            <div class="history-achievements">
+              <span class="achievement">
+                <i class="achievement-icon">⭐</i> Participación Confirmada
+              </span>
+              <span class="achievement">
+                <i class="achievement-icon">✅</i> Pago Completado
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

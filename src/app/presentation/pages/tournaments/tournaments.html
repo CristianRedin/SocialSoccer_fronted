@@ -1,0 +1,720 @@
+<p>tournaments works!</p>
+<div class="tournaments-container">
+  <!-- Encabezado principal -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1><i class="header-icon">🏆</i> Torneos de Fútbol</h1>
+        <p class="subtitle">Encuentra y participa en los mejores torneos de la temporada</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-create" (click)="openCreateModal()">
+          <i class="btn-icon">➕</i> 
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Barra de búsqueda y filtros -->
+  <div class="filters-section">
+    <div class="search-bar">
+      <div class="search-input-container">
+        <i class="search-icon">🔍</i>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Buscar torneos por nombre, ubicación..."
+          class="search-input">
+        <span class="search-results">{{getResultsDescription()}}</span>
+      </div>
+    </div>
+
+    <div class="filters-row">
+      <!-- Filtros de Estado -->
+      <div class="filter-group">
+        <label class="filter-label">Filtrar por estado:</label>
+        <div class="filter-buttons">
+          <button 
+            *ngFor="let filter of statusFilters"
+            [class.active]="selectedStatus === filter.value"
+            (click)="onStatusChange(filter.value)"
+            class="filter-btn status-btn">
+            <span class="filter-text">{{filter.label}}</span>
+            <span class="filter-count">{{filter.count}}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros de Tipo -->
+      <div class="filter-group">
+        <label class="filter-label">Tipo de torneo:</label>
+        <div class="filter-buttons">
+          <button 
+            *ngFor="let type of tournamentTypes"
+            [class.active]="selectedType === type.value"
+            (click)="onTypeChange(type.value)"
+            class="filter-btn type-btn">
+            {{type.label}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="main-content">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner">
+        <div class="spinner-icon">⚽</div>
+      </div>
+      <p>Cargando torneos...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredTournaments.length === 0" class="empty-state">
+      <div class="empty-icon">🏟️</div>
+      <h3>No se encontraron torneos</h3>
+      <p>Intenta con otros filtros o crea un nuevo torneo</p>
+      <button class="btn-create-empty" (click)="openCreateModal()">
+        <i class="btn-icon">➕</i> Crear mi primer torneo
+      </button>
+    </div>
+
+    <!-- Grid de Torneos -->
+    <div *ngIf="!isLoading && filteredTournaments.length > 0" class="tournaments-grid">
+      <div *ngFor="let tournament of filteredTournaments" class="tournament-card">
+        <!-- Encabezado de la tarjeta -->
+        <div class="card-header">
+          <div class="tournament-badge">
+            <span [class]="getStatusClass(tournament.status)" class="status-badge">
+              {{getStatusText(tournament.status)}}
+            </span>
+            <span class="type-badge">
+              <i class="type-icon">🎯</i> {{getTypeText(tournament.type)}}
+            </span>
+          </div>
+          <div class="card-actions">
+            <button class="btn-action" (click)="openTournamentDetail(tournament.id)">
+              <i class="action-icon">👁️</i> Ver Detalles
+            </button>
+          </div>
+        </div>
+
+        <!-- Cuerpo de la tarjeta -->
+        <div class="card-body">
+          <h3 class="tournament-title">{{tournament.name}}</h3>
+          <p class="tournament-description">{{tournament.description}}</p>
+
+          <div class="tournament-info">
+            <div class="info-item">
+              <i class="info-icon">📅</i>
+              <div class="info-content">
+                <span class="info-label">Fechas:</span>
+                <span class="info-value">{{formatDate(tournament.startDate)}} - {{formatDate(tournament.endDate)}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="info-icon">📍</i>
+              <div class="info-content">
+                <span class="info-label">Ubicación:</span>
+                <span class="info-value">{{tournament.location}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="info-icon">💰</i>
+              <div class="info-content">
+                <span class="info-label">Premio:</span>
+                <span class="info-value prize">{{tournament.prize}}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="progress-section">
+            <div class="progress-header">
+              <span>Progreso del torneo</span>
+              <span class="progress-percent">{{getProgressPercentage(tournament)}}%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="getProgressPercentage(tournament)"></div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-value">{{tournament.currentTeams}}/{{tournament.maxTeams}}</div>
+              <div class="stat-label">Equipos</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{getDaysRemaining(tournament)}}</div>
+              <div class="stat-label">Días restantes</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">
+                <span [class]="canRegister(tournament) ? 'available' : 'unavailable'">
+                  {{canRegister(tournament) ? 'Abierto' : 'Cerrado'}}
+                </span>
+              </div>
+              <div class="stat-label">Inscripciones</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pie de la tarjeta -->
+        <div class="card-footer">
+          <div class="dates">
+            <span class="date-label">Inscripciones hasta:</span>
+            <span class="date-value">{{formatDate(tournament.registrationDeadline)}}</span>
+          </div>
+          <button 
+            class="btn-register"
+            [class.disabled]="!canRegister(tournament)"
+            [disabled]="!canRegister(tournament)"
+            (click)="canRegister(tournament) && openTournamentDetail(tournament.id)">
+            <i class="btn-icon">📝</i> 
+            {{canRegister(tournament) ? 'Inscribirse' : 'Inscripciones cerradas'}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MODAL DE DETALLE DEL TORNEO ========== -->
+  <div *ngIf="showDetailModal && selectedTournament" class="modal-overlay" (click)="closeDetailModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <!-- Encabezado del Modal -->
+      <div class="modal-header">
+        <div class="modal-title-section">
+          <h2>{{selectedTournament.name}}</h2>
+          <div class="modal-badges">
+            <span [class]="getStatusClass(TournamentStatus.ACTIVE)" class="status-badge">
+              {{getStatusText(TournamentStatus.ACTIVE)}}
+            </span>
+            <span class="type-badge">
+              <i class="type-icon">🎯</i> Torneo de Eliminación
+            </span>
+          </div>
+        </div>
+        <button class="btn-close" (click)="closeDetailModal()">
+          <i class="close-icon">✕</i>
+        </button>
+      </div>
+
+      <!-- Navegación del Dashboard -->
+      <!-- Navegación del Dashboard -->
+    <div class="dashboard-tabs">
+      <button 
+      *ngFor="let tab of dashboardTabs"
+      [class.active]="dashboardActiveTab === tab"
+      (click)="setActiveTab(tab)"
+      class="dashboard-tab">
+      <i class="tab-icon">{{getTabIcon(tab)}}</i>
+       {{getTabLabel(tab)}}
+      </button>
+    </div>
+
+      <!-- Contenido del Dashboard -->
+      <div class="dashboard-content">
+        
+        <!-- Pestaña: Información -->
+        <div *ngIf="dashboardActiveTab === 'info'" class="tab-content info-tab">
+          <div class="info-grid">
+            <div class="info-column description-section">
+              <h3>📝 Descripción</h3>
+              <p>{{selectedTournament.description}}</p>
+              
+              <h3>📜 Reglas del Torneo</h3>
+              <ul class="rules-list">
+                <li *ngFor="let rule of selectedTournament.rules" class="rule-item">
+                  <i class="rule-icon">✅</i> {{rule}}
+                </li>
+              </ul>
+            </div>
+
+            <div class="info-column prizes-section">
+              <h3>💰 Premios</h3>
+              <div class="prizes-grid">
+                <div *ngFor="let prize of selectedTournament.prizes" class="prize-card" [class]="'prize-' + prize.position">
+                  <div class="prize-position">#{{prize.position}}</div>
+                  <div class="prize-amount">{{prize.amount}}</div>
+                  <div class="prize-description">{{prize.description}}</div>
+                </div>
+              </div>
+
+              <h3>📊 Información General</h3>
+              <div class="general-info">
+                <div class="info-row">
+                  <span class="info-label">Equipos inscritos:</span>
+                  <span class="info-value">{{selectedTournament.teams.length}} equipos</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Partidos jugados:</span>
+                  <span class="info-value">{{selectedTournament.statistics.matchesPlayed}} de {{selectedTournament.statistics.totalMatches}}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Goles totales:</span>
+                  <span class="info-value">{{selectedTournament.statistics.goalsScored}} goles</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Promedio de goles:</span>
+                  <span class="info-value">{{selectedTournament.statistics.averageGoals}} por partido</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña: Equipos -->
+        <div *ngIf="dashboardActiveTab === 'teams'" class="tab-content teams-tab">
+          <div class="teams-grid">
+            <div *ngFor="let team of selectedTournament.teams" class="team-card">
+              <div class="team-logo">{{team.logo}}</div>
+              <div class="team-info">
+                <h4>{{team.name}}</h4>
+                <p class="team-captain">Capitán: {{team.captain}}</p>
+                <div class="team-stats">
+                  <div class="team-stat">
+                    <span class="stat-value">{{team.played}}</span>
+                    <span class="stat-label">Partidos</span>
+                  </div>
+                  <div class="team-stat">
+                    <span class="stat-value">{{team.wins}}</span>
+                    <span class="stat-label">Victorias</span>
+                  </div>
+                  <div class="team-stat">
+                    <span class="stat-value">{{team.points}}</span>
+                    <span class="stat-label">Puntos</span>
+                  </div>
+                </div>
+              </div>
+              <button class="btn-team-details" (click)="getTeamStatistics(team.id)">
+                <i class="btn-icon">📊</i> Estadísticas
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña: Calendario -->
+        <div *ngIf="dashboardActiveTab === 'calendar'" class="tab-content calendar-tab">
+          <div class="calendar-header">
+            <h3>📅 Calendario de Partidos</h3>
+            <div class="calendar-filters">
+              <span class="filter-label">Filtrar por:</span>
+              <button class="filter-btn active">Todos</button>
+              <button class="filter-btn">Próximos</button>
+              <button class="filter-btn">Finalizados</button>
+            </div>
+          </div>
+
+          <div class="matches-list">
+            <div *ngFor="let match of selectedTournament.calendar" class="match-card" [class]="match.status">
+              <div class="match-date">
+                <div class="match-day">{{formatDate(match.date)}}</div>
+                <div class="match-time">{{match.time}}</div>
+                <div class="match-status" [class]="match.status">
+                  {{ 
+                    match.status === 'scheduled' ? 'Programado' : 
+                    match.status === 'in-progress' ? 'En juego' : 
+                    match.status === 'finished' ? 'Finalizado' : 'Cancelado'
+                  }}
+                </div>
+              </div>
+
+              <div class="match-teams">
+                <div class="team">
+                  <span class="team-name">{{match.homeTeam}}</span>
+                </div>
+                <div class="vs-section">
+                  <div class="score" *ngIf="match.score">
+                    {{match.score}}
+                  </div>
+                  <div class="vs" *ngIf="!match.score">
+                    VS
+                  </div>
+                </div>
+                <div class="team">
+                  <span class="team-name">{{match.awayTeam}}</span>
+                </div>
+              </div>
+
+              <div class="match-location">
+                <i class="location-icon">📍</i> {{match.location}}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña: Tabla de Posiciones -->
+        <div *ngIf="dashboardActiveTab === 'standings'" class="tab-content standings-tab">
+          <div class="standings-header">
+            <h3>🏆 Tabla de Posiciones</h3>
+            <div class="standings-info">
+              <span class="info-item">Partidos jugados: {{selectedTournament.statistics.matchesPlayed}}</span>
+              <span class="info-item">Última actualización: Hoy</span>
+            </div>
+          </div>
+
+          <div class="standings-table-container">
+            <table class="standings-table">
+              <thead>
+                <tr>
+                  <th>Pos</th>
+                  <th>Equipo</th>
+                  <th>PJ</th>
+                  <th>G</th>
+                  <th>E</th>
+                  <th>P</th>
+                  <th>GF</th>
+                  <th>GC</th>
+                  <th>DG</th>
+                  <th>Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let standing of selectedTournament.standings" [class]="'position-' + standing.position">
+                  <td class="position-cell">
+                    <span class="position-number">{{standing.position}}</span>
+                  </td>
+                  <td class="team-cell">
+                    <span class="team-logo-small">{{standing.team.logo}}</span>
+                    <span class="team-name">{{standing.team.name}}</span>
+                  </td>
+                  <td>{{standing.played}}</td>
+                  <td>{{standing.wins}}</td>
+                  <td>{{standing.draws}}</td>
+                  <td>{{standing.losses}}</td>
+                  <td>{{standing.goalsFor}}</td>
+                  <td>{{standing.goalsAgainst}}</td>
+                  <td [class]="standing.goalDifference >= 0 ? 'positive' : 'negative'">
+                    {{standing.goalDifference > 0 ? '+' : ''}}{{standing.goalDifference}}
+                  </td>
+                  <td class="points-cell">{{standing.points}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="standings-legend">
+            <div class="legend-item">
+              <span class="legend-color champions"></span>
+              <span class="legend-text">Clasifican a Playoffs</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color elimination"></span>
+              <span class="legend-text">Zona de Eliminación</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña: Llaves/Brackets -->
+        <div *ngIf="dashboardActiveTab === 'brackets'" class="tab-content brackets-tab">
+          <div class="brackets-header">
+            <h3>📊 Llaves del Torneo - Eliminación Directa</h3>
+            <div class="bracket-info">
+              <span class="info-item">Cuartos de final: 4 partidos</span>
+              <span class="info-item">Semifinales: 2 partidos</span>
+              <span class="info-item">Final: 1 partido</span>
+            </div>
+          </div>
+
+          <div class="brackets-container">
+            <!-- Cuartos de Final -->
+            <div class="bracket-round">
+              <h4>Cuartos de Final</h4>
+              <div class="bracket-matches">
+                <div *ngFor="let match of getBracketMatches('quarter')" class="bracket-match" [class.completed]="match.completed">
+                  <div class="match-info">
+                    <div class="match-number">Partido {{match.matchNumber}}</div>
+                    <div class="match-date">{{formatDate(match.date)}}</div>
+                  </div>
+                  <div class="teams">
+                    <div class="team" [class.winner]="match.winner === match.team1.name">
+                      <span class="team-name">{{match.team1.name}}</span>
+                      <span class="team-score" *ngIf="match.team1.score">{{match.team1.score}}</span>
+                    </div>
+                    <div class="team" [class.winner]="match.winner === match.team2.name">
+                      <span class="team-name">{{match.team2.name}}</span>
+                      <span class="team-score" *ngIf="match.team2.score">{{match.team2.score}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Semifinales -->
+            <div class="bracket-round">
+              <h4>Semifinales</h4>
+              <div class="bracket-matches">
+                <div *ngFor="let match of getBracketMatches('semi')" class="bracket-match" [class.completed]="match.completed">
+                  <div class="match-info">
+                    <div class="match-number">Partido {{match.matchNumber}}</div>
+                    <div class="match-date">{{formatDate(match.date)}}</div>
+                  </div>
+                  <div class="teams">
+                    <div class="team" [class.winner]="match.winner === match.team1.name">
+                      <span class="team-name">{{match.team1.name}}</span>
+                      <span class="team-score" *ngIf="match.team1.score">{{match.team1.score}}</span>
+                    </div>
+                    <div class="team" [class.winner]="match.winner === match.team2.name">
+                      <span class="team-name">{{match.team2.name}}</span>
+                      <span class="team-score" *ngIf="match.team2.score">{{match.team2.score}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Final -->
+            <div class="bracket-round final-round">
+              <h4>Gran Final</h4>
+              <div class="bracket-matches">
+                <div *ngFor="let match of getBracketMatches('final')" class="bracket-match final-match" [class.completed]="match.completed">
+                  <div class="match-info">
+                    <div class="match-number">Final</div>
+                    <div class="match-date">{{formatDate(match.date)}}</div>
+                  </div>
+                  <div class="teams">
+                    <div class="team" [class.winner]="match.winner === match.team1.name">
+                      <span class="team-name">{{match.team1.name}}</span>
+                      <span class="team-score" *ngIf="match.team1.score">{{match.team1.score}}</span>
+                    </div>
+                    <div class="team" [class.winner]="match.winner === match.team2.name">
+                      <span class="team-name">{{match.team2.name}}</span>
+                      <span class="team-score" *ngIf="match.team2.score">{{match.team2.score}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña: Estadísticas -->
+        <div *ngIf="dashboardActiveTab === 'stats'" class="tab-content stats-tab">
+          <div class="stats-grid-large">
+            <div class="stat-card main-stat">
+              <div class="stat-icon">⚽</div>
+              <div class="stat-content">
+                <div class="stat-value">{{selectedTournament.statistics.goalsScored}}</div>
+                <div class="stat-label">Goles Totales</div>
+              </div>
+            </div>
+
+            <div class="stat-card main-stat">
+              <div class="stat-icon">📊</div>
+              <div class="stat-content">
+                <div class="stat-value">{{selectedTournament.statistics.averageGoals}}</div>
+                <div class="stat-label">Promedio por Partido</div>
+              </div>
+            </div>
+
+            <div class="stat-card main-stat">
+              <div class="stat-icon">🎯</div>
+              <div class="stat-content">
+                <div class="stat-value">{{selectedTournament.statistics.matchesPlayed}}/{{selectedTournament.statistics.totalMatches}}</div>
+                <div class="stat-label">Partidos Jugados</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-details">
+            <!-- Mejor Equipo -->
+            <div class="stat-section">
+              <h4><i class="section-icon">👑</i> Mejor Equipo</h4>
+              <div class="stat-detail-card">
+                <div class="team-badge">{{selectedTournament.statistics.bestTeam.name.charAt(0)}}</div>
+                <div class="stat-detail-info">
+                  <div class="detail-name">{{selectedTournament.statistics.bestTeam.name}}</div>
+                  <div class="detail-value">{{selectedTournament.statistics.bestTeam.points}} puntos</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Máximo Goleador -->
+            <div class="stat-section">
+              <h4><i class="section-icon">⭐</i> Máximo Goleador</h4>
+              <div class="stat-detail-card">
+                <div class="player-badge">👤</div>
+                <div class="stat-detail-info">
+                  <div class="detail-name">{{selectedTournament.statistics.topScorer.name}}</div>
+                  <div class="detail-value">{{selectedTournament.statistics.topScorer.goals}} goles</div>
+                  <div class="detail-team">{{selectedTournament.statistics.topScorer.team}}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Próximos Partidos -->
+            <div class="stat-section">
+              <h4><i class="section-icon">⏭️</i> Próximos Partidos</h4>
+              <div class="upcoming-matches">
+                <div *ngFor="let match of getUpcomingMatches().slice(0, 3)" class="upcoming-match">
+                  <div class="match-teams-small">
+                    <span>{{match.homeTeam}} vs {{match.awayTeam}}</span>
+                  </div>
+                  <div class="match-date-small">{{formatDate(match.date)}} - {{match.time}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie del Modal -->
+      <div class="modal-footer">
+        <div class="footer-actions">
+          <button class="btn-secondary" (click)="closeDetailModal()">
+            <i class="btn-icon">←</i> Volver
+          </button>
+          <button class="btn-primary" [class.disabled]="true">
+            <i class="btn-icon">📝</i> Inscribir Equipo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MODAL CREAR TORNEO ========== -->
+  <div *ngIf="showCreateModal" class="modal-overlay" (click)="closeCreateModal()">
+    <div class="modal-content create-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><i class="modal-icon">➕</i> Crear Nuevo Torneo</h2>
+        <button class="btn-close" (click)="closeCreateModal()">
+          <i class="close-icon">✕</i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="createTournament()">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="tournamentName">Nombre del Torneo *</label>
+              <input 
+                type="text" 
+                id="tournamentName"
+                [(ngModel)]="newTournament.name"
+                name="tournamentName"
+                required
+                placeholder="Ej: Copa de Campeones 2024">
+            </div>
+
+            <div class="form-group">
+              <label for="tournamentType">Tipo de Torneo *</label>
+              <select 
+                id="tournamentType"
+                [(ngModel)]="newTournament.type"
+                name="tournamentType"
+                required>
+                <option value="ELIMINATION">Eliminación Directa</option>
+                <option value="LEAGUE">Liga</option>
+                <option value="MIXED">Mixto</option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="tournamentDescription">Descripción *</label>
+              <textarea 
+                id="tournamentDescription"
+                [(ngModel)]="newTournament.description"
+                name="tournamentDescription"
+                rows="3"
+                required
+                placeholder="Describe el torneo, su formato y objetivos..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="startDate">Fecha de Inicio *</label>
+              <input 
+                type="date" 
+                id="startDate"
+                [(ngModel)]="newTournament.startDate"
+                name="startDate"
+                [value]="formatDateForInput(newTournament.startDate!)"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label for="endDate">Fecha de Fin *</label>
+              <input 
+                type="date" 
+                id="endDate"
+                [(ngModel)]="newTournament.endDate"
+                name="endDate"
+                [value]="formatDateForInput(newTournament.endDate!)"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label for="registrationDeadline">Fecha Límite de Inscripción *</label>
+              <input 
+                type="date" 
+                id="registrationDeadline"
+                [(ngModel)]="newTournament.registrationDeadline"
+                name="registrationDeadline"
+                [value]="formatDateForInput(newTournament.registrationDeadline!)"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label for="maxTeams">Máximo de Equipos *</label>
+              <input 
+                type="number" 
+                id="maxTeams"
+                [(ngModel)]="newTournament.maxTeams"
+                name="maxTeams"
+                min="2"
+                max="64"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label for="location">Ubicación *</label>
+              <input 
+                type="text" 
+                id="location"
+                [(ngModel)]="newTournament.location"
+                name="location"
+                required
+                placeholder="Ej: Estadio Nacional">
+            </div>
+
+            <div class="form-group full-width">
+              <label for="prize">Premio *</label>
+              <input 
+                type="text" 
+                id="prize"
+                [(ngModel)]="newTournament.prize"
+                name="prize"
+                required
+                placeholder="Ej: $5,000 USD + Trofeo">
+            </div>
+
+            <div class="form-group full-width">
+              <label for="rules">Reglas del Torneo *</label>
+              <textarea 
+                id="rules"
+                [(ngModel)]="newTournament.rules"
+                name="rules"
+                rows="4"
+                required
+                placeholder="Describe las reglas del torneo..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="closeCreateModal()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-submit" [disabled]="!isFormValid()">
+              <i class="btn-icon">🏆</i> Crear Torneo
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

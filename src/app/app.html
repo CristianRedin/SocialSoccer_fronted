@@ -1,0 +1,179 @@
+<div class="app-container">
+  <!-- ========== HEADER PRINCIPAL ========== -->
+  <header class="app-header">
+    <div class="header-container">
+      <!-- Logo y Título -->
+      <div class="logo-section" routerLink="/">
+        <div class="logo-wrapper">
+          <div class="logo-icon">⚽</div>
+          <div class="logo-content">
+            <h1 class="app-title">{{ title }}</h1>
+            <p class="app-subtitle">Gestión Deportiva Profesional</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navegación Principal -->
+      <nav class="main-navigation">
+        <div class="nav-container">
+          <a routerLink="/" 
+             routerLinkActive="active" 
+             [routerLinkActiveOptions]="{exact: true}"
+             class="nav-link">
+            <i class="nav-icon">🏠</i>
+            <span class="nav-text">Inicio</span>
+          </a>
+          
+          <a routerLink="/results" 
+             routerLinkActive="active" 
+             class="nav-link">
+            <i class="nav-icon">📊</i>
+            <span class="nav-text">Resultados</span>
+          </a>
+          
+          <a routerLink="/tournaments" 
+             routerLinkActive="active" 
+             class="nav-link">
+            <i class="nav-icon">🏆</i>
+            <span class="nav-text">Torneos</span>
+          </a>
+          
+          <a routerLink="/inscriptions" 
+             routerLinkActive="active" 
+             class="nav-link">
+            <i class="nav-icon">📝</i>
+            <span class="nav-text">Inscripciones</span>
+          </a>
+          
+          <a routerLink="/statistics" 
+             routerLinkActive="active" 
+             class="nav-link">
+            <i class="nav-icon">📈</i>
+            <span class="nav-text">Estadísticas</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- Información del Usuario -->
+      <div class="user-section">
+        <div class="user-card">
+          <div class="user-avatar">
+            <div class="avatar-content">CR</div>
+            <div class="online-indicator"></div>
+          </div>
+          
+          <div class="user-info">
+            <h3 class="user-name">Caiza Redin Cristian Fernando</h3>
+            <div class="user-details">
+              <span class="user-role">
+                <i class="role-icon">👑</i> Capitán de Equipo
+              </span>
+              <span class="user-team">
+                <i class="team-icon">⚽</i> #5
+              </span>
+            </div>
+          </div>
+          
+          <div class="user-actions">
+            <button class="btn-notifications">
+              <i class="notif-icon">🔔</i>
+              <span class="notif-badge">3</span>
+            </button>
+            <button class="btn-settings">
+              <i class="settings-icon">⚙️</i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== CONTENIDO PRINCIPAL ========== -->
+  <main class="app-main">
+    <!-- Área del Router -->
+    <div class="router-container">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <!-- ========== FOOTER PRINCIPAL ========== -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-content">
+        <!-- Sección izquierda -->
+        <div class="footer-section">
+          <div class="footer-logo">
+            <div class="footer-icon">⚽</div>
+            <div class="footer-title">
+              <h3>Social Soccer</h3>
+              <p>Gestiona tu pasión</p>
+            </div>
+          </div>
+          <p class="footer-description">
+            Plataforma profesional para la gestión completa de torneos, equipos y estadísticas deportivas.
+          </p>
+        </div>
+
+        <!-- Sección central - Links rápidos -->
+        <div class="footer-section">
+          <h4 class="footer-heading">Enlaces Rápidos</h4>
+          <div class="footer-links">
+            <a routerLink="/" class="footer-link">Inicio</a>
+            <a routerLink="/results" class="footer-link">Resultados</a>
+            <a routerLink="/tournaments" class="footer-link">Torneos</a>
+            <a routerLink="/inscriptions" class="footer-link">Inscripciones</a>
+            <a routerLink="/statistics" class="footer-link">Estadísticas</a>
+          </div>
+        </div>
+
+        <!-- Sección derecha - Contacto -->
+        <div class="footer-section">
+          <h4 class="footer-heading">Contacto</h4>
+          <div class="contact-info">
+            <div class="contact-item">
+              <i class="contact-icon">📧</i>
+              <span>soporte@socialsoccer.com</span>
+            </div>
+            <div class="contact-item">
+              <i class="contact-icon">📱</i>
+              <span>+593 99 999 9999</span>
+            </div>
+            <div class="contact-item">
+              <i class="contact-icon">📍</i>
+              <span>Quito, Ecuador</span>
+            </div>
+          </div>
+          
+          <div class="social-links">
+            <a href="#" class="social-link" title="Facebook">
+              <i class="social-icon">📘</i>
+            </a>
+            <a href="#" class="social-link" title="Twitter">
+              <i class="social-icon">🐦</i>
+            </a>
+            <a href="#" class="social-link" title="Instagram">
+              <i class="social-icon">📷</i>
+            </a>
+            <a href="#" class="social-link" title="YouTube">
+              <i class="social-icon">📺</i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Copyright -->
+      <div class="footer-bottom">
+        <div class="copyright">
+          © 2024 <strong>Social Soccer</strong>. Todos los derechos reservados.
+        </div>
+        <div class="footer-legal">
+          <a href="#" class="legal-link">Términos de Servicio</a>
+          <span class="separator">•</span>
+          <a href="#" class="legal-link">Política de Privacidad</a>
+          <span class="separator">•</span>
+          <a href="#" class="legal-link">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>

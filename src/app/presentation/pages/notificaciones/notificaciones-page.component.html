@@ -1,0 +1,133 @@
+<div class="page-container">
+  
+  <div class="notif-layout">
+    
+    <main class="notif-main">
+      
+      <header class="section-header">
+        <div class="header-texts">
+          <h1>Notificaciones</h1>
+          <p class="subtitle">Tu centro de actividad reciente</p>
+        </div>
+        
+        <div class="tabs">
+          <button class="tab" 
+                  [class.active]="filtroActual === 'todas'" 
+                  (click)="setFiltro('todas')">
+            Todas
+          </button>
+
+          <button class="tab" 
+                  [class.active]="filtroActual === 'no_leidas'" 
+                  (click)="setFiltro('no_leidas')">
+            No leídas
+            <span *ngIf="totalNoLeidas > 0" class="mini-badge">
+              {{ totalNoLeidas }}
+            </span>
+            </button>
+
+          <button class="tab" 
+                  [class.active]="filtroActual === 'importantes'" 
+                  (click)="setFiltro('importantes')">
+            Importantes
+          </button>
+        </div>
+      </header>
+
+      <div *ngIf="cargando" class="loading-state">
+        <div class="spinner"></div>
+        <p>Sincronizando...</p>
+      </div>
+
+      <div *ngIf="!cargando && listaNotificaciones.length === 0" class="empty-state">
+        <div class="empty-icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        </div>
+        <h3>Bandeja limpia</h3>
+        <p>Estás completamente al día.</p>
+      </div>
+
+      <div *ngIf="!cargando && notificacionesFiltradas.length > 0" class="feed">
+        
+        <div class="date-separator">
+          <span *ngIf="filtroActual === 'todas'">Recientes</span>
+          <span *ngIf="filtroActual === 'no_leidas'">Pendientes de lectura</span>
+          <span *ngIf="filtroActual === 'importantes'">Alertas y Avisos</span>
+          <div class="line"></div>
+        </div>
+
+        <div *ngFor="let notif of notificacionesFiltradas" 
+             class="notif-item" 
+             [class.unread]="!notif.leida"
+             [class.type-alert]="notif.tipo === 'Alerta'"
+             [class.type-invite]="notif.tipo === 'Invitación'"
+             (click)="marcarLeida(notif.id)"> <div class="notif-icon">
+             <svg *ngIf="notif.tipo === 'Invitación'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+             <svg *ngIf="notif.tipo === 'Alerta'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+             <svg *ngIf="notif.tipo === 'Info' || notif.tipo === 'Publicidad'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+             <svg *ngIf="!['Invitación','Alerta','Info','Publicidad'].includes(notif.tipo)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+
+          <div class="notif-body">
+            <div class="top-row">
+              <span class="category-badge">{{ notif.tipo || 'Sistema' }}</span>
+              <span class="time-ago">{{ notif.fecha }}</span>
+            </div>
+            <p class="content-text">{{ notif.mensaje }}</p>
+          </div>
+
+          <div class="notif-actions">
+            <button *ngIf="!notif.leida" 
+                    (click)="marcarLeida(notif.id); $event.stopPropagation()" 
+                    class="mini-btn check" 
+                    title="Marcar leída">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+            <button (click)="eliminar(notif.id); $event.stopPropagation()" 
+                    class="mini-btn trash" 
+                    title="Eliminar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          
+        </div>
+      </div>
+
+      <div *ngIf="!cargando && notificacionesFiltradas.length === 0 && listaNotificaciones.length > 0" class="empty-filter-state">
+        <p>No tienes notificaciones en esta categoría.</p>
+        <button (click)="setFiltro('todas')" class="link-reset">Ver todas las notificaciones</button>
+      </div>
+
+    </main>
+
+    <aside class="notif-sidebar">
+      
+      <div class="widget-card stats-widget">
+        <h3>Resumen</h3>
+        <div class="stats-row">
+          <div class="stat-item">
+            <span class="stat-num">{{ listaNotificaciones.length }}</span>
+            <span class="stat-lbl">Total</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-num highlight">
+               {{ listaNotificaciones.length }} 
+               </span>
+            <span class="stat-lbl">Pendientes</span>
+          </div>
+        </div>
+        <button class="btn-full-width">Marcar todo como leído</button>
+      </div>
+
+      <div class="widget-card info-widget">
+        <div class="info-icon-box">💡</div>
+        <h4>¿Sabías que?</h4>
+        <p>Las notificaciones de "Alerta" caducan automáticamente después de 30 días.</p>
+        <a href="javascript:void(0)">Configurar alertas</a>
+      </div>
+
+    </aside>
+
+  </div>
+</div>

@@ -1,0 +1,102 @@
+<div class="page-container">
+  
+  <header class="page-header">
+    <div class="header-top">
+      <div>
+        <h1 class="page-title">Reservar Cancha</h1>
+        <p class="page-subtitle">Encuentra tu lugar ideal</p>
+      </div>
+      
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          placeholder="Buscar cancha..." 
+          class="search-input"
+          [(ngModel)]="filtroTexto" 
+          (input)="filtrar()">
+      </div>
+    </div>
+
+    <div class="filters-bar">
+      
+      <div class="filter-group">
+        <label>Zona</label>
+        <select [(ngModel)]="filtroZona" (change)="filtrar()" class="form-select">
+          <option value="">Todas las zonas</option>
+          <option *ngFor="let zona of zonasDisponibles" [value]="zona">
+            {{ zona }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Tipo</label>
+        <select [(ngModel)]="filtroTipo" (change)="filtrar()" class="form-select">
+          <option value="">Cualquier tipo</option>
+          <option *ngFor="let tipo of tiposDisponibles" [value]="tipo">
+            {{ tipo }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group price-group">
+        <label>Precio Máx: <strong>${{ filtroPrecio }}</strong></label>
+        <input 
+          type="range" 
+          min="0" 
+          [max]="maxPrecioSistema" 
+          [(ngModel)]="filtroPrecio" 
+          (input)="filtrar()"
+          class="range-slider">
+      </div>
+
+      <button class="btn-clear" (click)="limpiarFiltros()" title="Limpiar filtros">
+        ↺
+      </button>
+
+    </div>
+  </header>
+
+  <main class="courts-grid">
+    
+    <div *ngIf="cargando" class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando canchas...</p>
+    </div>
+
+    <div *ngIf="!cargando && listaCanchas.length === 0" class="empty-results">
+      <p>No hay canchas que coincidan con estos filtros.</p>
+      <button class="btn-text" (click)="limpiarFiltros()">Limpiar filtros</button>
+    </div>
+
+    <ng-container *ngIf="!cargando && listaCanchas.length > 0">
+      <div class="court-card" *ngFor="let cancha of listaCanchas">
+        <div class="card-image-wrapper">
+          <img [src]="cancha.imagen || 'https://images.unsplash.com/photo-1529900748604-07564a03e7a6?q=80&w=800&auto=format&fit=crop'" 
+               alt="Cancha" class="card-img">
+          <div class="status-badge available">
+            <span class="dot"></span> {{ cancha.estado || 'Activo' }}
+          </div>
+        </div>
+
+        <div class="card-content">
+          <div class="card-header-info">
+            <span class="court-type">{{ cancha.tipo_superficie }}</span>
+            <div class="rating">⭐ {{ cancha.valoracion || '5.0' }}</div>
+          </div>
+          <h3 class="court-title">{{ cancha.nombre }}</h3>
+          <p class="court-location">📍 {{ cancha.ubicacion }} — <strong>{{ cancha.zona }}</strong></p>
+          
+          <div class="card-footer">
+            <div class="price-info">
+              <span class="price-value">${{ cancha.precio }}</span>
+              <span class="price-unit">/hora</span>
+            </div>
+            <button class="btn-reserve" [routerLink]="['/canchas', cancha.id]">Reservar</button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </main>
+</div>

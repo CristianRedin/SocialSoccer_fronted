@@ -42,9 +42,21 @@ export const routes: Routes = [
       ),
     title: 'Estadísticas'
   },
-
-  
-   
+  {
+    path: 'canchas',
+    loadComponent: () => import('./presentation/pages/canchas/canchas-page/canchas-page.component').then(m => m.CanchasPageComponent),
+    title: 'Reserva de Canchas'
+  },
+  {
+    path: 'canchas/:id',
+    loadComponent: () => import('./presentation/pages/canchas/cancha-detail-page/cancha-detail-page.component').then(m => m.CanchaDetailPageComponent),
+    title: 'Detalle de Cancha'
+  },
+  {
+    path: 'notificaciones',
+    loadComponent: () => import('./presentation/pages/notificaciones/notificaciones-page.component').then(m => m.NotificacionesPageComponent),
+    title: 'Mis Notificaciones'
+  },
   { 
     path: '**', 
     redirectTo: '' 

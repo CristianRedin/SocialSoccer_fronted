@@ -1,0 +1,113 @@
+<div class="page-container">
+  
+  <div *ngIf="cargando" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando detalles de la cancha...</p>
+  </div>
+
+  <div *ngIf="errorMensaje && !cargando" class="error-container">
+    <div class="error-card">
+      <span class="icon-error">⚠️</span>
+      <h3>Algo salió mal</h3>
+      <p>{{ errorMensaje }}</p>
+      <a routerLink="/canchas" class="btn-secondary">Volver al listado</a>
+    </div>
+  </div>
+
+  <div *ngIf="cancha && !cargando" class="content-wrapper animate-fade-in">
+    
+    <nav class="breadcrumb-nav">
+      <a routerLink="/canchas" class="back-link">← Volver a resultados</a>
+    </nav>
+
+    <header class="detail-header">
+      <h1 class="cancha-title">{{ cancha.nombre }}</h1>
+      <div class="sub-header">
+        <span class="rating-badge">⭐ {{ cancha.valoracion || '5.0' }}</span>
+        <span class="separator">•</span>
+        <span class="location-text">{{ cancha.ubicacion }}, {{ cancha.zona }}</span>
+        <span class="separator">•</span>
+        <span class="status-pill" [class.inactive]="cancha.estado !== 'Activo'">
+          {{ cancha.estado || 'Activo' }}
+        </span>
+      </div>
+    </header>
+
+    <div class="detail-grid">
+      
+      <div class="left-column">
+        
+        <div class="hero-image-wrapper">
+          <img [src]="cancha.imagen || 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?q=80&w=1200'" 
+               [alt]="cancha.nombre" 
+               class="hero-img">
+        </div>
+
+        <div class="info-section">
+          
+          <div class="features-row">
+            <div class="feature-item">
+              <span class="icon">🏟️</span>
+              <div>
+                <strong>Superficie</strong>
+                <p>{{ cancha.tipo_superficie }}</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <span class="icon">📍</span>
+              <div>
+                <strong>Zona</strong>
+                <p>{{ cancha.zona }}</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <span class="icon">🕒</span>
+              <div>
+                <strong>Horario</strong>
+                <p>{{ cancha.hora_apertura || '08:00' }} - {{ cancha.hora_cierre || '23:00' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <div class="description-block">
+            <h3>Sobre este lugar</h3>
+            <p>{{ cancha.descripcion || 'Disfruta de una experiencia deportiva de primer nivel. Esta cancha cuenta con iluminación LED, vestuarios y estacionamiento seguro. Ideal para torneos o partidos amistosos.' }}</p>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="right-column">
+        <div class="booking-card">
+          <div class="booking-header">
+            <div class="price-display">
+              <span class="amount">${{ cancha.precio }}</span>
+              <span class="period">/ hora</span>
+            </div>
+            <span class="availability-text">Disponible hoy</span>
+          </div>
+
+          <div class="booking-body">
+            <div class="info-row">
+              <span>Estado</span>
+              <span class="value-highlight">{{ cancha.estado || 'Activo' }}</span>
+            </div>
+            <div class="info-row">
+              <span>Capacidad</span>
+              <span>10-12 Jugadores</span>
+            </div>
+          </div>
+
+          <button class="btn-primary-large" (click)="iniciarReserva()">
+            Reservar Ahora
+          </button>
+          
+          <p class="micro-text">No se te cobrará nada todavía</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

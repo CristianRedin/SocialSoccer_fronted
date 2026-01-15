@@ -1,0 +1,500 @@
+// statistics.component.scss - Versión sin Angular Material
+
+// Variables de colores
+:host {
+  --primary-color: #2196F3;
+  --secondary-color: #FF9800;
+  --success-color: #4CAF50;
+  --warning-color: #FFC107;
+  --danger-color: #F44336;
+  --dark-color: #333333;
+  --light-color: #F5F5F5;
+  --gray-color: #757575;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+// Estilos generales
+.statistics-page {
+  padding: 24px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding: 0 16px;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--dark-color);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  font-size: 1.1rem;
+  color: var(--gray-color);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+// Contenedor principal
+.stats-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Secciones generales
+.stats-section {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 24px;
+  margin-bottom: 24px;
+  transition: var(--transition);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--dark-color);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+
+  .icon {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    
+    // Íconos usando emojis como fallback
+    &.icon-user::before { content: "👤"; }
+    &.icon-trophy::before { content: "🏆"; }
+    &.icon-standings::before { content: "📋"; }
+  }
+}
+
+.section-badge {
+  background: var(--primary-color);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+// Estadísticas del jugador
+.player-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.stat-item {
+  background: var(--light-color);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: var(--transition);
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-color);
+    opacity: 0;
+    transition: var(--transition);
+  }
+
+  &:hover {
+    &::before {
+      opacity: 1;
+    }
+    border-color: var(--primary-color);
+    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.15);
+  }
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  line-height: 1;
+  margin-bottom: 8px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  &.yellow {
+    color: var(--warning-color);
+  }
+
+  &.red {
+    color: var(--danger-color);
+  }
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--gray-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+// Grid de tablas
+.tables-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+
+  @media (min-width: 992px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+// Estilos de tablas
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: white;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+  font-size: 0.9375rem;
+
+  thead {
+    background: var(--light-color);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    
+    tr {
+      th {
+        position: relative;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          right: 0;
+          top: 25%;
+          height: 50%;
+          width: 1px;
+          background: rgba(0, 0, 0, 0.1);
+        }
+        
+        &:last-child::after {
+          display: none;
+        }
+      }
+    }
+  }
+
+  th {
+    padding: 16px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--dark-color);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+
+    &:first-child {
+      text-align: left;
+      padding-left: 24px;
+    }
+  }
+}
+
+.table-row {
+  transition: var(--transition);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: rgba(33, 150, 243, 0.05);
+  }
+
+  td {
+    padding: 16px;
+    text-align: center;
+    font-size: 0.9375rem;
+    color: var(--dark-color);
+
+    &:first-child {
+      padding-left: 24px;
+      text-align: left;
+    }
+  }
+}
+
+// Celdas específicas
+.position-cell {
+  width: 80px;
+}
+
+.position-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--light-color);
+  color: var(--dark-color);
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: var(--transition);
+
+  &.top-three {
+    background: linear-gradient(135deg, var(--primary-color), #1976D2);
+    color: white;
+    box-shadow: 0 3px 8px rgba(33, 150, 243, 0.3);
+  }
+}
+
+.name-cell, .team-cell {
+  text-align: left !important;
+  min-width: 180px;
+}
+
+.player-info, .team-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.player-name, .team-name {
+  font-weight: 500;
+  color: var(--dark-color);
+}
+
+// Estilos específicos para columnas
+.goals-cell strong {
+  color: var(--success-color);
+  font-size: 1.125rem;
+  background: rgba(76, 175, 80, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.points-cell strong {
+  color: var(--primary-color);
+  font-size: 1.125rem;
+  background: rgba(33, 150, 243, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.wins-cell {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.draws-cell {
+  color: var(--warning-color);
+  font-weight: 600;
+}
+
+.losses-cell {
+  color: var(--danger-color);
+  font-weight: 600;
+}
+
+.avg-cell {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: var(--gray-color);
+  background: rgba(0, 0, 0, 0.02);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .statistics-page {
+    padding: 16px;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .player-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat-item {
+    padding: 16px;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+
+  .stats-section {
+    padding: 20px;
+  }
+  
+  .tables-grid {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+
+  .page-subtitle {
+    font-size: 1rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .stats-table {
+    min-width: 400px;
+    
+    th, td {
+      padding: 12px 8px;
+    }
+    
+    th:first-child,
+    td:first-child {
+      padding-left: 16px;
+    }
+  }
+}
+
+// Animaciones suaves
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.stats-section {
+  animation: fadeIn 0.5s ease-out;
+  
+  &:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  
+  &:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+}
+
+.table-row {
+  animation: slideIn 0.3s ease-out;
+  
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.05}s;
+    }
+  }
+}
+
+// Scroll personalizado
+.table-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: darken(#2196F3, 10%);
+}
+
+// Clases de utilidad
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }

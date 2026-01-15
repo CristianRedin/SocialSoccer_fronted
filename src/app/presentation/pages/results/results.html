@@ -8,11 +8,18 @@
       </div>
       <div class="header-actions">
         <button class="btn-primary" (click)="openResultForm()">
-          <i class="btn-icon">📝</i>
+          <i class="btn-icon">📝</i> Registrar Resultado
         </button>
       </div>
     </div>
   </header>
+
+  <!-- Estado de conexión -->
+  <div class="connection-status" [class.connected]="backendAvailable" [class.disconnected]="!backendAvailable && !isLoadingBackend">
+    <div class="status-indicator"></div>
+    <span>{{ getBackendStatusText() }}</span>
+    <span class="match-count">• {{ getTotalMatches() }} partidos cargados</span>
+  </div>
 
   <!-- Barra de navegación -->
   <div class="results-nav">
@@ -22,6 +29,9 @@
       </button>
       <button class="nav-tab" data-tab="stats">
         <i class="tab-icon">⭐</i> Mis Estadísticas
+      </button>
+      <button class="nav-tab" data-tab="backend">
+        <i class="tab-icon">🔄</i> Datos del Backend
       </button>
     </div>
   </div>
@@ -36,22 +46,25 @@
         <div class="filters-row">
           <div class="filter-group">
             <label>Filtrar por fase:</label>
-            <select class="filter-select">
+            <select class="filter-select" [(ngModel)]="currentPhase" (change)="filterByPhase(currentPhase)">
               <option value="all">Todas las fases</option>
-              <option value="group">Fase de Grupos</option>
-              <option value="round16">Octavos de Final</option>
-              <option value="quarter">Cuartos de Final</option>
-              <option value="semi">Semifinales</option>
-              <option value="final">Final</option>
+              <option value="FASE DE GRUPOS">Fase de Grupos</option>
+              <option value="OCTAVOS DE FINAL">Octavos de Final</option>
+              <option value="CUARTOS DE FINAL">Cuartos de Final</option>
+              <option value="SEMIFINALES">Semifinales</option>
+              <option value="FINAL">Final</option>
             </select>
           </div>
           <div class="filter-group">
-            <label>Ordenar por:</label>
-            <select class="filter-select">
-              <option value="date-desc">Fecha (más reciente)</option>
-              <option value="date-asc">Fecha (más antiguo)</option>
-              <option value="goals">Más goles</option>
-            </select>
+            <label>Fuente de datos:</label>
+            <div class="source-tags">
+              <span class="source-tag backend-tag" *ngIf="backendAvailable">
+                <i class="tag-icon">✅</i> Backend ({{ resultadosBackend.length }})
+              </span>
+              <span class="source-tag simulated-tag">
+                <i class="tag-icon">🎮</i> Simulado ({{ matches.length }})
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -66,7 +79,13 @@
 
       <!-- Lista de partidos -->
       <div *ngIf="!isLoading" class="matches-grid">
-        <div *ngFor="let match of matches" class="match-card">
+        <div *ngFor="let match of matchesToShow; let i = index" class="match-card">
+          <!-- Indicador de origen -->
+          <div class="match-source" [class.backend-source]="i < resultadosBackend.length && backendAvailable" 
+               [class.simulated-source]="i >= resultadosBackend.length || !backendAvailable">
+            {{ i < resultadosBackend.length && backendAvailable ? 'Backend' : 'Simulado' }}
+          </div>
+
           <!-- Encabezado del partido -->
           <div class="match-header">
             <div class="match-phase">
@@ -135,13 +154,13 @@
                 <i class="info-icon">👑</i>
                 <div class="info-content">
                   <span class="info-label">MVP:</span>
-                  <span class="info-value">{{match.mvp.name}} ({{match.mvp.team}})</span>
+                  <span class="info-value">{{match.mvp?.name || 'No asignado'}} {{match.mvp?.team ? '(' + match.mvp.team + ')' : ''}}</span>
                 </div>
               </div>
             </div>
 
             <!-- Eventos del partido -->
-            <div class="match-events">
+            <div class="match-events" *ngIf="match.events && match.events.length > 0">
               <h4><i class="events-icon">📈</i> Eventos del Partido</h4>
               <div class="events-list">
                 <div *ngFor="let event of match.events" class="event-item" [class]="event.type">
@@ -155,18 +174,37 @@
                 </div>
               </div>
             </div>
+            
+            <!-- Sin eventos -->
+            <div class="match-events" *ngIf="!match.events || match.events.length === 0">
+              <h4><i class="events-icon">📈</i> Eventos del Partido</h4>
+              <div class="no-events">
+                <i class="no-events-icon">📝</i>
+                <p>No hay eventos registrados para este partido</p>
+              </div>
+            </div>
           </div>
 
           <!-- Pie del partido -->
           <div class="match-footer">
             <div class="attendance">
-              <i class="attendance-icon">👥</i> Asistencia: {{match.attendance}}
+              <i class="attendance-icon">👥</i> Asistencia: {{match.attendance || 'No disponible'}}
             </div>
             <div class="match-status">
               <span class="status-badge completed">Finalizado</span>
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Sin resultados -->
+      <div *ngIf="!isLoading && matchesToShow.length === 0" class="no-results">
+        <div class="no-results-icon">📭</div>
+        <h3>No hay resultados disponibles</h3>
+        <p>No se encontraron partidos con los filtros seleccionados</p>
+        <button class="btn-primary" (click)="filterByPhase('all')">
+          <i class="btn-icon">🔄</i> Mostrar todos
+        </button>
       </div>
     </div>
 
@@ -276,7 +314,9 @@
                   <span class="opponent-name">{{match.opponent}}</span>
                 </div>
                 <div class="match-result">
-                  <span class="result-badge">{{match.result}}</span>
+                  <span class="result-badge" [class]="match.result.charAt(0)">
+                    {{match.result}}
+                  </span>
                 </div>
                 <div class="match-rating">
                   <div class="rating">{{match.rating}}</div>
@@ -316,31 +356,277 @@
         </div>
       </div>
     </div>
+
+    <!-- Sección: Datos del Backend -->
+    <div class="section" id="backend-section">
+      <div class="backend-container">
+        <div class="backend-header">
+          <h2><i class="backend-icon">🖥️</i> Información del Backend</h2>
+          <div class="backend-status" [class.connected]="backendAvailable">
+            <span class="status-dot"></span>
+            {{ backendAvailable ? 'Conectado' : 'Desconectado' }}
+          </div>
+        </div>
+
+        <!-- Estadísticas del Backend -->
+        <div class="backend-stats" *ngIf="estadisticasBackend">
+          <h3><i class="stats-icon">📈</i> Estadísticas Generales</h3>
+          <div class="stats-grid">
+            <div class="backend-stat">
+              <div class="stat-label">Total Partidos</div>
+              <div class="stat-value">{{estadisticasBackend.total_partidos || 0}}</div>
+            </div>
+            <div class="backend-stat">
+              <div class="stat-label">Total Goles</div>
+              <div class="stat-value">{{estadisticasBackend.total_goles || 0}}</div>
+            </div>
+            <div class="backend-stat">
+              <div class="stat-label">Prom. Goles/Partido</div>
+              <div class="stat-value">{{estadisticasBackend.promedio_goles_partido || 0 | number:'1.1-1'}}</div>
+            </div>
+            <div class="backend-stat">
+              <div class="stat-label">Victorias Local</div>
+              <div class="stat-value">{{estadisticasBackend.victorias_local || 0}}</div>
+            </div>
+            <div class="backend-stat">
+              <div class="stat-label">Victorias Visitante</div>
+              <div class="stat-value">{{estadisticasBackend.victorias_visitante || 0}}</div>
+            </div>
+            <div class="backend-stat">
+              <div class="stat-label">Empates</div>
+              <div class="stat-value">{{estadisticasBackend.empates || 0}}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de resultados del backend -->
+        <div class="backend-results">
+          <h3><i class="results-icon">📋</i> Resultados del Backend ({{ resultadosBackend.length }})</h3>
+          
+          <div *ngIf="resultadosBackend.length === 0" class="empty-backend">
+            <i class="empty-icon">📭</i>
+            <p>No hay resultados en el backend</p>
+            <p class="empty-hint">Registra un resultado para comenzar</p>
+          </div>
+
+          <div *ngIf="resultadosBackend.length > 0" class="results-table">
+            <div class="table-header">
+              <div class="header-cell">Equipos</div>
+              <div class="header-cell">Resultado</div>
+              <div class="header-cell">Fecha</div>
+              <div class="header-cell">Jornada</div>
+              <div class="header-cell">Acciones</div>
+            </div>
+            
+            <div class="table-body">
+              <div *ngFor="let resultado of resultadosBackend.slice(0, 10)" class="table-row">
+                <div class="table-cell teams-cell">
+                  <div class="team-pair">
+                    <span class="home-team">{{resultado.equipoLocal}}</span>
+                    <span class="vs">vs</span>
+                    <span class="away-team">{{resultado.equipoVisitante}}</span>
+                  </div>
+                </div>
+                
+                <div class="table-cell result-cell">
+                  <span class="score">{{resultado.golesLocal}} - {{resultado.golesVisitante}}</span>
+                  <span class="result-type" [class]="resultado.resultado_tipo?.toLowerCase() || 'empate'">
+                    {{resultado.ganador || 'Empate'}}
+                  </span>
+                </div>
+                
+                <div class="table-cell date-cell">
+                  {{resultado.fecha | date:'dd/MM/yyyy'}}
+                </div>
+                
+                <div class="table-cell jornada-cell">
+                  {{resultado.jornada}}
+                </div>
+                
+                <div class="table-cell actions-cell">
+                  <button class="btn-action view-btn" title="Ver detalle">
+                    <i class="action-icon">👁️</i>
+                  </button>
+                  <button class="btn-action edit-btn" title="Editar">
+                    <i class="action-icon">✏️</i>
+                  </button>
+                  <button class="btn-action delete-btn" title="Eliminar">
+                    <i class="action-icon">🗑️</i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de conexión -->
+        <div class="connection-info">
+          <h3><i class="info-icon">🔧</i> Configuración</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">URL del Backend:</span>
+              <span class="info-value">http://localhost:3000/api/resultados</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Modo actual:</span>
+              <span class="info-value mode-badge" [class]="backendAvailable ? 'online' : 'offline'">
+                {{ backendAvailable ? 'Online' : 'Offline' }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Última conexión:</span>
+              <span class="info-value">{{ backendAvailable ? 'Ahora' : 'No disponible' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- Modal: Registrar Resultado -->
+<!-- Modal: Registrar Resultado (Híbrido) -->
 <div *ngIf="showResultForm" class="modal-overlay" (click)="closeResultForm()">
   <div class="modal-content result-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2><i class="modal-icon">🌎</i> Registrar Resultado - Mundial 2026</h2>
+      <h2>
+        <i class="modal-icon">🌎</i> 
+        {{ backendAvailable ? 'Registrar Resultado (Backend)' : 'Registrar Resultado - Mundial 2026' }}
+      </h2>
+      <div class="form-type-badge" [class]="backendAvailable ? 'backend' : 'simulated'">
+        <i class="badge-icon">{{ backendAvailable ? '✅' : '🎮' }}</i>
+        {{ backendAvailable ? 'Backend' : 'Simulado' }}
+      </div>
       <button class="btn-close" (click)="closeResultForm()">
         <i class="close-icon">✕</i>
       </button>
     </div>
 
     <div class="modal-body">
-      <form (ngSubmit)="submitResult()">
+      <!-- Formulario para Backend -->
+      <form *ngIf="backendAvailable" (ngSubmit)="submitResult()" #backendForm="ngForm">
+        <div class="form-notice">
+          <i class="notice-icon">ℹ️</i>
+          <p>Registrando en <strong>Backend real</strong>. Los datos se guardarán en la base de datos.</p>
+        </div>
+        
+        <div class="form-grid">
+          <!-- Equipo Local -->
+          <div class="form-group">
+            <label for="equipoLocal">Equipo Local *</label>
+            <div class="input-with-flag">
+              <span class="input-flag">{{ getFlag(resultForm.equipoLocal) }}</span>
+              <input type="text" id="equipoLocal" 
+                     [(ngModel)]="resultForm.equipoLocal" 
+                     name="equipoLocal" 
+                     class="form-input readonly" 
+                     readonly>
+            </div>
+          </div>
+          
+          <!-- Equipo Visitante -->
+          <div class="form-group">
+            <label for="equipoVisitante">Equipo Visitante *</label>
+            <select id="equipoVisitante" 
+                    [(ngModel)]="resultForm.equipoVisitante" 
+                    name="equipoVisitante" 
+                    class="form-select" 
+                    required>
+              <option value="" disabled selected>Selecciona rival</option>
+              <option *ngFor="let team of backendTeams" [value]="team" 
+                      [disabled]="team === resultForm.equipoLocal">
+                {{ getFlag(team) }} {{ team }}
+              </option>
+            </select>
+          </div>
+          
+          <!-- Marcador -->
+          <div class="form-group">
+            <label for="golesLocal">Goles Local *</label>
+            <input type="number" id="golesLocal" 
+                   [(ngModel)]="resultForm.golesLocal" 
+                   name="golesLocal" 
+                   class="form-input" 
+                   min="0" max="20" 
+                   required
+                   placeholder="Ej: 2">
+          </div>
+          
+          <div class="form-group">
+            <label for="golesVisitante">Goles Visitante *</label>
+            <input type="number" id="golesVisitante" 
+                   [(ngModel)]="resultForm.golesVisitante" 
+                   name="golesVisitante" 
+                   class="form-input" 
+                   min="0" max="20" 
+                   required
+                   placeholder="Ej: 1">
+          </div>
+          
+          <!-- Fecha y Jornada -->
+          <div class="form-group">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" 
+                   [(ngModel)]="resultForm.fecha" 
+                   name="fecha" 
+                   class="form-input">
+          </div>
+          
+          <div class="form-group">
+            <label for="jornada">Jornada</label>
+            <input type="number" id="jornada" 
+                   [(ngModel)]="resultForm.jornada" 
+                   name="jornada" 
+                   class="form-input" 
+                   min="1" max="38"
+                   placeholder="Ej: 1">
+          </div>
+          
+          <!-- Temporada y Árbitro -->
+          <div class="form-group">
+            <label for="temporada">Temporada</label>
+            <input type="text" id="temporada" 
+                   [(ngModel)]="resultForm.temporada" 
+                   name="temporada" 
+                   class="form-input"
+                   placeholder="Ej: 2024-2025">
+          </div>
+          
+          <div class="form-group">
+            <label for="arbitro">Árbitro</label>
+            <input type="text" id="arbitro" 
+                   [(ngModel)]="resultForm.arbitro" 
+                   name="arbitro" 
+                   class="form-input" 
+                   placeholder="Nombre del árbitro">
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="closeResultForm()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-submit" [disabled]="!backendForm.form.valid">
+            <i class="btn-icon">💾</i> Guardar en Backend
+          </button>
+        </div>
+      </form>
+      
+      <!-- Formulario para Modo Simulado -->
+      <form *ngIf="!backendAvailable" (ngSubmit)="submitResult()" #simulatedForm="ngForm">
+        <div class="form-notice">
+          <i class="notice-icon">🎮</i>
+          <p>Modo <strong>simulado</strong>. Los datos se guardarán solo en el navegador.</p>
+        </div>
+        
         <div class="form-grid">
           <!-- Fase del torneo -->
           <div class="form-group full-width">
             <label for="phase">Fase del Torneo *</label>
-            <select 
-              id="phase"
-              [(ngModel)]="resultForm.phase"
-              name="phase"
-              required
-              class="form-select">
+            <select id="phase"
+                    [(ngModel)]="worldCupForm.phase"
+                    name="phase"
+                    required
+                    class="form-select">
               <option value="" disabled selected>Selecciona la fase</option>
               <option *ngFor="let phase of phases" [value]="phase">{{phase}}</option>
             </select>
@@ -349,26 +635,27 @@
           <!-- Equipos -->
           <div class="form-group">
             <label for="homeTeam">Equipo Local</label>
-            <input 
-              type="text" 
-              id="homeTeam"
-              [(ngModel)]="resultForm.homeTeam"
-              name="homeTeam"
-              readonly
-              class="form-input readonly"
-              value="{{resultForm.homeTeam}}">
+            <div class="input-with-flag">
+              <span class="input-flag">{{ getFlag(worldCupForm.homeTeam) }}</span>
+              <input type="text" 
+                     id="homeTeam"
+                     [(ngModel)]="worldCupForm.homeTeam"
+                     name="homeTeam"
+                     readonly
+                     class="form-input readonly">
+            </div>
           </div>
 
           <div class="form-group">
             <label for="awayTeam">Equipo Visitante *</label>
-            <select 
-              id="awayTeam"
-              [(ngModel)]="resultForm.awayTeam"
-              name="awayTeam"
-              required
-              class="form-select">
+            <select id="awayTeam"
+                    [(ngModel)]="worldCupForm.awayTeam"
+                    name="awayTeam"
+                    required
+                    class="form-select">
               <option value="" disabled selected>Selecciona rival</option>
-              <option *ngFor="let team of worldCupTeams" [value]="team" [disabled]="team === resultForm.homeTeam">
+              <option *ngFor="let team of worldCupTeams" [value]="team" 
+                      [disabled]="team === worldCupForm.homeTeam">
                 {{team}}
               </option>
             </select>
@@ -377,51 +664,47 @@
           <!-- Marcador -->
           <div class="form-group">
             <label for="homeScore">Goles Local *</label>
-            <input 
-              type="number" 
-              id="homeScore"
-              [(ngModel)]="resultForm.homeScore"
-              name="homeScore"
-              min="0"
-              max="20"
-              required
-              class="form-input"
-              placeholder="Ej: 3">
+            <input type="number" 
+                   id="homeScore"
+                   [(ngModel)]="worldCupForm.homeScore"
+                   name="homeScore"
+                   min="0"
+                   max="20"
+                   required
+                   class="form-input"
+                   placeholder="Ej: 3">
           </div>
 
           <div class="form-group">
             <label for="awayScore">Goles Visitante *</label>
-            <input 
-              type="number" 
-              id="awayScore"
-              [(ngModel)]="resultForm.awayScore"
-              name="awayScore"
-              min="0"
-              max="20"
-              required
-              class="form-input"
-              placeholder="Ej: 2">
+            <input type="number" 
+                   id="awayScore"
+                   [(ngModel)]="worldCupForm.awayScore"
+                   name="awayScore"
+                   min="0"
+                   max="20"
+                   required
+                   class="form-input"
+                   placeholder="Ej: 2">
           </div>
 
           <!-- Fecha y lugar -->
           <div class="form-group">
             <label for="date">Fecha del Partido</label>
-            <input 
-              type="date" 
-              id="date"
-              [(ngModel)]="resultForm.date"
-              name="date"
-              class="form-input">
+            <input type="date" 
+                   id="date"
+                   [(ngModel)]="worldCupForm.date"
+                   name="date"
+                   class="form-input">
           </div>
 
           <div class="form-group">
             <label for="stadium">Estadio *</label>
-            <select 
-              id="stadium"
-              [(ngModel)]="resultForm.stadium"
-              name="stadium"
-              required
-              class="form-select">
+            <select id="stadium"
+                    [(ngModel)]="worldCupForm.stadium"
+                    name="stadium"
+                    required
+                    class="form-select">
               <option value="" disabled selected>Selecciona estadio</option>
               <option *ngFor="let stadium of stadiums" [value]="stadium.name">
                 {{stadium.name}} ({{stadium.city}})
@@ -431,36 +714,33 @@
 
           <div class="form-group">
             <label for="city">Ciudad</label>
-            <input 
-              type="text" 
-              id="city"
-              [(ngModel)]="resultForm.city"
-              name="city"
-              class="form-input"
-              placeholder="Ej: Ciudad de México">
+            <input type="text" 
+                   id="city"
+                   [(ngModel)]="worldCupForm.city"
+                   name="city"
+                   class="form-input"
+                   placeholder="Ej: Ciudad de México">
           </div>
 
           <!-- Árbitro y MVP -->
           <div class="form-group">
             <label for="referee">Árbitro Principal</label>
-            <input 
-              type="text" 
-              id="referee"
-              [(ngModel)]="resultForm.referee"
-              name="referee"
-              class="form-input"
-              placeholder="Ej: Daniele Orsato (ITA)">
+            <input type="text" 
+                   id="referee"
+                   [(ngModel)]="worldCupForm.referee"
+                   name="referee"
+                   class="form-input"
+                   placeholder="Ej: Daniele Orsato (ITA)">
           </div>
 
           <div class="form-group">
             <label for="mvp">Jugador del Partido (MVP)</label>
-            <input 
-              type="text" 
-              id="mvp"
-              [(ngModel)]="resultForm.mvp"
-              name="mvp"
-              class="form-input"
-              placeholder="Ej: Lionel Messi">
+            <input type="text" 
+                   id="mvp"
+                   [(ngModel)]="worldCupForm.mvp"
+                   name="mvp"
+                   class="form-input"
+                   placeholder="Ej: Lionel Messi">
           </div>
 
           <!-- Mensaje informativo -->
@@ -477,8 +757,8 @@
           <button type="button" class="btn-cancel" (click)="closeResultForm()">
             Cancelar
           </button>
-          <button type="submit" class="btn-submit">
-            <i class="btn-icon">📤</i> Registrar Resultado
+          <button type="submit" class="btn-submit" [disabled]="!simulatedForm.form.valid">
+            <i class="btn-icon">🎮</i> Registrar (Simulado)
           </button>
         </div>
       </form>

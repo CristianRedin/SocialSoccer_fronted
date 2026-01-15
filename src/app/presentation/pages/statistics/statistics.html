@@ -1,1 +1,166 @@
-<p>statistics works!</p>
+<div class="statistics-page">
+  <header class="page-header">
+    <h1 class="page-title">Estadísticas del Torneo</h1>
+    <p class="page-subtitle">Sigue el rendimiento de jugadores y equipos</p>
+  </header>
+
+  <div class="stats-container">
+    <!-- Estadísticas del Jugador -->
+    <section class="stats-section player-stats-card">
+      <h2 class="section-title">
+        <i class="icon icon-user"></i>
+        Tu Rendimiento
+      </h2>
+      
+      <div class="player-stats-grid">
+        <div class="stat-item">
+          <div class="stat-value">{{ playerStats.goals }}</div>
+          <div class="stat-label">Goles</div>
+          <div class="stat-icon">⚽</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-value">{{ playerStats.assists }}</div>
+          <div class="stat-label">Asistencias</div>
+          <div class="stat-icon">🎯</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-value">{{ playerStats.matchesplayers }}</div>
+          <div class="stat-label">Partidos</div>
+          <div class="stat-icon">👕</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-value">{{ playerStats.minutesplayers }}</div>
+          <div class="stat-label">Minutos</div>
+          <div class="stat-icon">⏱️</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-value">{{ playerStats.mvpCount }}</div>
+          <div class="stat-label">MVP</div>
+          <div class="stat-icon">⭐</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-value">{{ playerStats.averageRating }}</div>
+          <div class="stat-label">Rating</div>
+          <div class="stat-icon">📊</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-value yellow">{{ playerStats.yellowCards }}</div>
+          <div class="stat-label">Amarillas</div>
+          <div class="stat-icon">🟨</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-value red">{{ playerStats.redCards }}</div>
+          <div class="stat-label">Rojas</div>
+          <div class="stat-icon">🟥</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SOLO CAMBIÉ ESTO: Convertí el grid de dos columnas en una sola columna -->
+    
+    <!-- Tabla de Goleadores -->
+    <section class="stats-section scorers-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="icon icon-trophy"></i>
+          Máximos Goleadores
+        </h2>
+        <span class="section-badge">{{ topScorers.length }} jugadores</span>
+      </div>
+      
+      <div class="table-container">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th class="position-col">POS</th>
+              <th class="name-col">JUGADOR</th>
+              <th class="team-col">EQUIPO</th>
+              <th class="matches-col">PJ</th>
+              <th class="goals-col">GOLES</th>
+              <th class="avg-col">PROM</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let scorer of topScorers" class="table-row">
+              <td class="position-cell">
+                <span class="position-badge" [class.top-three]="scorer.position <= 3">
+                  {{ scorer.position }}
+                </span>
+              </td>
+              <td class="name-cell">
+                <div class="player-info">
+                  <span class="player-name">{{ scorer.name }}</span>
+                </div>
+              </td>
+              <td class="team-cell">
+                <span class="team-name">{{ scorer.team }}</span>
+              </td>
+              <td class="matches-cell">{{ scorer.matches }}</td>
+              <td class="goals-cell">
+                <strong>{{ scorer.goals }}</strong>
+              </td>
+              <td class="avg-cell">
+                {{ (scorer.goals / scorer.matches).toFixed(1) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Tabla de Posiciones (ahora debajo de goleadores) -->
+    <section class="stats-section standings-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="icon icon-standings"></i>
+          Tabla de Posiciones
+        </h2>
+        <span class="section-badge">{{ teamStandings.length }} equipos</span>
+      </div>
+      
+      <div class="table-container">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th class="position-col">POS</th>
+              <th class="team-col">EQUIPO</th>
+              <th class="matches-col">PJ</th>
+              <th class="wins-col">G</th>
+              <th class="draws-col">E</th>
+              <th class="losses-col">P</th>
+              <th class="points-col">PTS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let team of teamStandings" class="table-row">
+              <td class="position-cell">
+                <span class="position-badge" [class.top-three]="team.position <= 3">
+                  {{ team.position }}
+                </span>
+              </td>
+              <td class="team-cell">
+                <div class="team-info">
+                  <span class="team-name">{{ team.team }}</span>
+                </div>
+              </td>
+              <td class="matches-cell">{{ team.matches }}</td>
+              <td class="wins-cell">{{ team.wins }}</td>
+              <td class="draws-cell">{{ team.draws }}</td>
+              <td class="losses-cell">{{ team.losses }}</td>
+              <td class="points-cell">
+                <strong>{{ team.points }}</strong>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
